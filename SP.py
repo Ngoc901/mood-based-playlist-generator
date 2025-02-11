@@ -1,4 +1,3 @@
-
 import os
 from dotenv import load_dotenv
 from spotipy.oauth2 import SpotifyOAuth
@@ -20,13 +19,17 @@ class SpotifyClient:
         track_uris = []
         for track, artist in track_list.items():
             results = self.sp.search(q= 'track:' + track + ' artist:' + artist, type='track', limit=1)
-            uri = results['tracks']['items'][0]['uri']
-            track_uris.append(uri)
+            if bool(results['tracks']['items']) == True:
+                print(results['tracks']['items'][0]['uri'])
+                track_uris.append(results['tracks']['items'][0]['uri'])
         return track_uris
 
     def add_to_playlist(self, track_list):
         uris = self.search_tracks(track_list)
-        self.sp.playlist_replace_items(self.target_playlist, uris)
+        self.sp.playlist_replace_items(self.target_playlist, uris[:100])
+
+
+
 
 
 
