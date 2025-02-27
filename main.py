@@ -1,70 +1,118 @@
-import requests
-
-#
-# # Example Usage
-# songs = {
-#     "Super Shy": "NewJeans",
-#     "Eve, Psyche & The Bluebeard’s wife": "LE SSERAFIM",
-#     "I AM": "IVE"
-# }
-
-from ollama import chat
-from ollama import ChatResponse
+from PopularityPrediction import PopularityPrediction
 from SP import SpotifyClient
+
 from DS import get_tracks
 
-
-
-
-
-
-#user_input = input("Enter your mood: ")
-#tracks = get_tracks(user_input)
-
+# Mock Data
 TRACKS = {
-"Spring Day": "BTS",
-"Through the Night": "IU",
-"Sing for You": "EXO",
-"Fine": "Taeyeon",
-"You Were Beautiful": "DAY6",
-"Light Years Away": "G.E.M.",
-"Empty": "WINNER",
-"I Need Somebody": "DAY6",
-"Breathe": "Lee Hi",
-"Lonely": "Jonghyun",
-"How Have You Been?": "Eric Chou",
-"If You": "BIGBANG",
-"Time Spent Walking Through Memories": "Nell",
-"Blue": "BOL4",
-"Hug Me": "IZ*ONE",
-"Eyes, Nose, Lips": "Taeyang",
-"Goodbye": "Whee In",
-"Rain": "TAEYEON",
-"I Miss You": "MAMAMOO",
-"Lonely Night": "Kwon Jin Ah",
-"Through the Rain": "Kris Wu",
-"Miracles in December": "EXO",
-"Love Scenario": "iKON",
-"Ending Scene": "IU",
-"Let Me Out": "NU'EST",
-"Lonely": "SISTAR",
-"The Truth Untold": "BTS",
-"Hello, Goodbye": "Hyolyn",
-"Hurt": "EXO",
-"I Will Go to You Like the First Snow": "Ailee",
-"Missing You": "BTOB",
-"Lonely": "2NE1",
-"Starlight": "TAEYEON",
-"Dear Moon": "JEON MI DO",
-"Say Something": "TWICE",
+    "Blinding Lights": "The Weeknd",
+    "Shape of You": "Ed Sheeran",
+    "Dance Monkey": "Tones and I",
+    "Rockstar": "Post Malone feat. 21 Savage",
+    "One Dance": "Drake feat. Wizkid & Kyla",
+    "Closer": "The Chainsmokers feat. Halsey",
+    "Bad Guy": "Billie Eilish",
+    "Sunflower": "Post Malone & Swae Lee",
+    "Señorita": "Shawn Mendes & Camila Cabello",
+    "Someone You Loved": "Lewis Capaldi",
+    "Havana": "Camila Cabello feat. Young Thug",
+    "Circles": "Post Malone",
+    "Don't Start Now": "Dua Lipa",
+    "Believer": "Imagine Dragons",
+    "Watermelon Sugar": "Harry Styles",
+    "Old Town Road": "Lil Nas X feat. Billy Ray Cyrus",
+    "Sicko Mode": "Travis Scott",
+    "God's Plan": "Drake",
+    "I Like It": "Cardi B, Bad Bunny & J Balvin",
+    "Lucid Dreams": "Juice WRLD",
+    "Thank U, Next": "Ariana Grande",
+    "7 Rings": "Ariana Grande",
+    "Shallow": "Lady Gaga & Bradley Cooper",
+    "Perfect": "Ed Sheeran",
+    "Uptown Funk": "Mark Ronson feat. Bruno Mars",
+    "Sorry": "Justin Bieber",
+    "Levitating": "Dua Lipa feat. DaBaby",
+    "Memories": "Maroon 5",
+    "Faded": "Alan Walker",
+    "Counting Stars": "OneRepublic",
+    "Heat Waves": "Glass Animals",
+    "Bad Habits": "Ed Sheeran",
+    "Stay": "The Kid LAROI & Justin Bieber",
+    "Industry Baby": "Lil Nas X & Jack Harlow",
+    "Beggin'": "Måneskin",
+    "Easy On Me": "Adele",
+    "Shivers": "Ed Sheeran",
+    "As It Was": "Harry Styles",
+    "About Damn Time": "Lizzo",
+    "Ghost": "Justin Bieber",
+    "Woman": "Doja Cat",
+    "Fancy Like": "Walker Hayes",
+    "First Class": "Jack Harlow",
+    "Bad Romance": "Lady Gaga",
+    "Toxic": "Britney Spears",
+    "Peaches": "Justin Bieber feat. Daniel Caesar & Giveon",
+    "Save Your Tears": "The Weeknd",
+    "Rain On Me": "Lady Gaga & Ariana Grande",
+    "Positions": "Ariana Grande",
+    "Dynamite": "BTS",
+    "Life Goes On": "BTS",
+    "Dakiti": "Bad Bunny & Jhay Cortez",
+    "Moscow Mule": "Bad Bunny",
+    "Break My Heart": "Dua Lipa",
+    "Physical": "Dua Lipa",
+    "Don't Play": "Anne-Marie, KSI & Digital Farm Animals",
+    "Love Nwantiti (Ah Ah Ah)": "CKay",
+    "Heat": "Chris Brown",
+    "Savage Love (Laxed - Siren Beat)": "Jawsh 685 x Jason Derulo",
+    "Mood": "24kGoldn feat. Iann Dior",
+    "Adore You": "Harry Styles",
+    "Willow": "Taylor Swift",
+    "Cardigan": "Taylor Swift",
+    "Anti-Hero": "Taylor Swift",
+    "All Too Well (10 Minute Version)": "Taylor Swift",
+    "Bad Blood": "Taylor Swift",
+    "Shake It Off": "Taylor Swift",
+    "Blank Space": "Taylor Swift",
+    "Love Story": "Taylor Swift",
+    "Good 4 U": "Olivia Rodrigo",
+    "Drivers License": "Olivia Rodrigo",
+    "Deja Vu": "Olivia Rodrigo",
+    "Kiss Me More": "Doja Cat feat. SZA",
+    "Say So": "Doja Cat",
+    "Need to Know": "Doja Cat",
+    "Streets": "Doja Cat",
+    "Montero (Call Me By Your Name)": "Lil Nas X",
+    "Butter": "BTS",
+    "Permission to Dance": "BTS",
+    "Good Days": "SZA",
+    "Therefore I Am": "Billie Eilish",
+    "Happier Than Ever": "Billie Eilish",
+    "Leave The Door Open": "Silk Sonic",
+    "Habits (Stay High)": "Tove Lo",
+    "Break Up Song": "Little Mix",
+    "WAP": "Cardi B feat. Megan Thee Stallion",
+    "No Time To Die": "Billie Eilish",
+    "Don't Go Yet": "Camila Cabello",
+    "Bad Decisions": "Bebe Rexha",
+    "Electric": "Alina Baraz feat. Khalid",
+    "Lost in Japan": "Shawn Mendes",
+    "Treat You Better": "Shawn Mendes",
+    "There's Nothing Holdin' Me Back": "Shawn Mendes",
+    "Happier": "Marshmello & Bastille",
+    "Bad Liar": "Imagine Dragons",
+    "Thunder": "Imagine Dragons",
+    "Radioactive": "Imagine Dragons",
+    "Natural": "Imagine Dragons",
+    "The Box": "Roddy Ricch",
+    "Life Is Good": "Future feat. Drake"
 }
 
-
-
-
 if __name__ == "__main__":
-    # user_input = input("Enter your mood: ")
-    # tracks = get_tracks(user_input)
+    #user_input = input("Enter your mood: ")
+    #tracks = get_tracks(user_input)
     client = SpotifyClient()
     client.add_to_playlist(TRACKS)
     client.bar_chart()
+    prediction = PopularityPrediction()
+    prediction.popularity_prediction(client.get_track_properties(TRACKS))
+
