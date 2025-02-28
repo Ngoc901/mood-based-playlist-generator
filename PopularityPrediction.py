@@ -5,8 +5,7 @@ from sklearn.linear_model import LinearRegression, Lasso, Ridge
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import (mean_absolute_error, r2_score, mean_absolute_percentage_error,
-                             mean_squared_error, accuracy_score, f1_score)
-from SP import SpotifyClient
+                             mean_squared_error)
 from sklearn.preprocessing import PolynomialFeatures
 import seaborn as sns
 
@@ -37,7 +36,9 @@ class PopularityPrediction():
 
         # Preprocess data
         # Convert release_date to release_year and drop release_date
+        # Ensures that invalid dates are turned into NaT (Not a Time) instead of throwing errors.
         df['release_year'] = pd.to_datetime(df['release_date'], errors='coerce').dt.year
+        # Prevents errors if the column does not exist.
         df = df.drop(columns=['release_date'], errors='ignore')
 
         # Convert explicit to integer
@@ -47,12 +48,10 @@ class PopularityPrediction():
         df = pd.get_dummies(df, columns=['album_type'], drop_first=True)
 
 
-        # 5. Force all columns to numeric (if conversion fails, value becomes NaN)
+        # Force all columns to numeric (if conversion fails, value becomes NaN)
         df = df.apply(pd.to_numeric, errors='coerce')
 
         # Display the processed DataFrame and data types
-        pd.set_option('display.max_columns', None)
-        pd.set_option('display.max_rows', 50)
         print("\n Processed DataFrame:")
         print(df.head())
         print("\n Data Types After Processing:")
@@ -69,8 +68,6 @@ class PopularityPrediction():
         plt.xlabel("Correlation Coefficient")
         plt.ylabel("Feature")
         plt.show()
-
-
 
         # Predictors (we use the one-hot encoded album_type columns automatically added)
         predictor_columns = ['popularity_of_artists', 'release_year', 'album_type_single'] \

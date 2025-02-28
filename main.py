@@ -108,10 +108,10 @@ TRACKS = {
 }
 
 if __name__ == "__main__":
-    #user_input = input("Enter your mood: ")
-    #tracks = get_tracks(user_input)
+    user_input = input("Enter your mood: ")
+    tracks = get_tracks(user_input)
     client = SpotifyClient()
-    client.add_to_playlist(TRACKS)
+    client.add_to_playlist(tracks)
     client.bar_chart()
     prediction = PopularityPrediction()
     prediction.popularity_prediction(client.get_track_properties(TRACKS))

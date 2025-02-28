@@ -17,6 +17,7 @@ def extract_tracks(text):
     #The language model generates a list of songs that fit the description, and this function ensures that only the relevant dictionary is extracted and returned for further processing
 
     # Uses a Regular Expression to find all Python code blocks within the provided text
+    # List containing all matches
     code_blocks = re.findall(r'```python(.*?)```', text, re.DOTALL)
     if not code_blocks:
         return None
@@ -37,7 +38,8 @@ def extract_tracks(text):
         return None
 
 def get_tracks(user_input):
-    # Sends a conversation
+    # Call an AI chat model using function chat()
+    # The function sends a list of messages to the model
     # A system prompt describing "Mixr" a persona who is boh a persona who is both a music connoisseur and a Python expert
     response: ChatResponse = chat(model='deepseek-r1:14b',
                                   messages=[
